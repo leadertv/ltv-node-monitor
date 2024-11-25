@@ -89,7 +89,8 @@ class MarzbanAPI:
                 nodes = response.json()
 
                 if not isinstance(nodes, list):
-                    raise ValueError("Unexpected response format. Expected a list of nodes.")
+                    raise ValueError(
+                        "Unexpected response format. Expected a list of nodes.")
 
                 return nodes
             except httpx.RequestError as e:
