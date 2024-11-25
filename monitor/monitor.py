@@ -9,6 +9,7 @@ import logging
 
 class NodeMonitor:
     def __init__(self):
+        # Основные компоненты
         self.api = MarzbanAPI()
         self.notifier = TelegramNotifier()
         self.redis = redis.Redis(
@@ -17,8 +18,16 @@ class NodeMonitor:
             db=Config.REDIS_DB,
             password=Config.REDIS_PASSWORD,
         )
+
+        # Префиксы для ключей Redis
         self.node_status_key_prefix = "node_status:"
         self.node_disconnect_time_prefix = "node_disconnect_time:"
+
+        # Параметры задержек и попыток
+        self.sleep_interval = 30  # Задержка между циклами мониторинга
+        self.reconnect_attempts = 3  # Количество попыток переподключения
+        self.reconnect_delay = 5  # Задержка между попытками переподключения
+        self.node_check_delay = 10  # Задержка перед проверкой статуса узла после переподключения
 
     def get_node_status_key(self, node_id):
         return f"{self.node_status_key_prefix}{node_id}"
@@ -42,16 +51,37 @@ class NodeMonitor:
         while True:
             try:
                 logging.info("Начало мониторинга узлов...")
-                nodes = self.api.get_nodes()
-                logging.info(f"Получено {len(nodes)} узлов для мониторинга.")
+                start_time = time.time()
 
-                if Config.LOG_LEVEL == "DEBUG":
+                try:
+                    nodes = self.api.get_nodes()
+                    elapsed_time = time.time() - start_time
+                    logging.info(f"Запрос узлов выполнен за {elapsed_time:.2f} секунд")
+                    logging.info(f"Получено {len(nodes)} узлов для мониторинга.")
+                except TimeoutError:
+                    logging.error("Timeout while retrieving nodes")
                     self.notifier.send_message(
                         Responses.get_message(
-                            "SUCCESS_MONITOR_START", node_count=len(nodes)
+                            "ERROR_MONITOR_FAILURE",
+                            error_message="Timeout while retrieving nodes",
+                            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         ),
                         parse_mode="HTML",
                     )
+                    time.sleep(self.sleep_interval)  # Задержка перед следующей попыткой
+                    continue
+                except Exception as e:
+                    logging.error(f"Ошибка при получении узлов: {e}")
+                    self.notifier.send_message(
+                        Responses.get_message(
+                            "ERROR_MONITOR_FAILURE",
+                            error_message=str(e),
+                            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        ),
+                        parse_mode="HTML",
+                    )
+                    time.sleep(self.sleep_interval)
+                    continue
 
                 for node in nodes:
                     self.log_node_info(node)
@@ -65,10 +95,23 @@ class NodeMonitor:
                         node_id
                     )
 
-                    node_status = self.api.get_node(node_id)
+                    try:
+                        node_status = self.api.get_node(node_id)
+                    except TimeoutError:
+                        logging.error(
+                            f"Timeout while retrieving status for node {node_name}"
+                        )
+                        continue
+                    except Exception as e:
+                        logging.error(
+                            f"Ошибка при получении статуса узла {node_name}: {e}"
+                        )
+                        continue
+
                     current_status = node_status.get("status", "unknown")
                     logging.info(f"Статус узла {node_name}: {current_status}")
 
+                    # Если узел восстановился
                     if (
                         self.redis.get(node_redis_key) == b"disconnected"
                         and current_status == "connected"
@@ -99,6 +142,7 @@ class NodeMonitor:
                         self.redis.delete(node_redis_key)
                         self.redis.delete(node_disconnect_time_key)
 
+                    # Если узел отключен
                     if current_status not in ["connected", "disabled"]:
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         logging.warning(
@@ -119,81 +163,48 @@ class NodeMonitor:
                             )
                             self.redis.set(node_disconnect_time_key, time.time())
 
-                        self.api.reconnect_node(node_id)
-                        time.sleep(10)
+                        # Попытка переподключения
+                        for i in range(self.reconnect_attempts):
+                            try:
+                                self.api.reconnect_node(node_id)
+                                time.sleep(self.node_check_delay)
+                                node_status = self.api.get_node(node_id)
 
-                        max_checks = 3
-                        attempts = 0
-
-                        for i in range(max_checks):
-                            attempts += 1
-                            node_status = self.api.get_node(node_id)
-                            if node_status["status"] == "connected":
-                                timestamp_reconnect = datetime.now().strftime(
-                                    "%Y-%m-%d %H:%M:%S"
-                                )
-                                disconnect_time = self.redis.get(
-                                    node_disconnect_time_key
-                                )
-                                if disconnect_time:
-                                    disconnect_time = float(disconnect_time)
-                                    reconnect_time = time.time()
-                                    downtime = reconnect_time - disconnect_time
-                                    downtime_minutes = round(downtime / 60, 2)
-                                else:
-                                    downtime_minutes = 0
-
-                                logging.info(
-                                    f"Узел {node_name} восстановлен в "
-                                    f"{timestamp_reconnect} после {attempts} попыток."
-                                )
-                                self.notifier.send_message(
-                                    Responses.get_message(
-                                        "SUCCESS_NODE_RECONNECTED_AFTER_ATTEMPTS",
-                                        node_name=node_name,
-                                        node_ip=node_ip,
-                                        timestamp=timestamp_reconnect,
-                                        attempts=attempts,
-                                        downtime_minutes=downtime_minutes,
-                                    ),
-                                    parse_mode="HTML",
-                                )
-                                self.redis.delete(node_redis_key)
-                                self.redis.delete(node_disconnect_time_key)
-                                break
-                            else:
-                                timestamp_attempt = datetime.now().strftime(
-                                    "%Y-%m-%d %H:%M:%S"
-                                )
-                                logging.warning(
-                                    f"Узел {node_name} ({node_ip}) не переподключен. "
-                                    f"Попытка {i + 1}/{max_checks}. "
-                                    f"Время: {timestamp_attempt}"
-                                )
-                                if Config.LOG_LEVEL == "DEBUG":
+                                if node_status["status"] == "connected":
+                                    timestamp_reconnect = datetime.now().strftime(
+                                        "%Y-%m-%d %H:%M:%S"
+                                    )
+                                    logging.info(
+                                        f"Узел {node_name} успешно переподключен в "
+                                        f"{timestamp_reconnect} после {i + 1} попыток."
+                                    )
                                     self.notifier.send_message(
                                         Responses.get_message(
-                                            "ERROR_NODE_RECONNECT_ATTEMPT",
+                                            "SUCCESS_NODE_RECONNECTED_AFTER_ATTEMPTS",
                                             node_name=node_name,
                                             node_ip=node_ip,
-                                            attempt=i + 1,
-                                            max_checks=max_checks,
-                                            timestamp=timestamp_attempt,
+                                            timestamp=timestamp_reconnect,
+                                            attempts=i + 1,
                                         ),
                                         parse_mode="HTML",
                                     )
-                                time.sleep(5)
+                                    self.redis.delete(node_redis_key)
+                                    self.redis.delete(node_disconnect_time_key)
+                                    break
+                            except Exception as e:
+                                logging.error(
+                                    f"Ошибка при переподключении узла {node_name}: {e}"
+                                )
+                                time.sleep(self.reconnect_delay)
 
-                        if (
-                            node_status["status"] != "connected"
-                            and self.redis.get(node_redis_key) != b"disconnected"
-                        ):
+                        else:
+                            # Если все попытки неудачны
                             timestamp_failure = datetime.now().strftime(
                                 "%Y-%m-%d %H:%M:%S"
                             )
                             logging.error(
                                 f"Не удалось переподключить узел {node_name} "
-                                f"в {timestamp_failure}. Попытки: {max_checks}"
+                                f"в {timestamp_failure}."
                             )
                             self.notifier.send_message(
                                 Responses.get_message(
@@ -201,14 +212,14 @@ class NodeMonitor:
                                     node_name=node_name,
                                     node_ip=node_ip,
                                     error_message=node_message,
-                                    attempts=max_checks,
+                                    attempts=self.reconnect_attempts,
                                     timestamp=timestamp_failure,
                                 ),
                                 parse_mode="HTML",
                             )
                             self.redis.set(node_redis_key, "disconnected")
 
-                time.sleep(30)
+                time.sleep(self.sleep_interval)
 
             except Exception as e:
                 timestamp_error = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
