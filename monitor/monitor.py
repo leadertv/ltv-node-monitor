@@ -24,10 +24,10 @@ class NodeMonitor:
         self.node_disconnect_time_prefix = "node_disconnect_time:"
 
         # Параметры задержек и попыток
-        self.sleep_interval = 30  # Задержка между циклами мониторинга
-        self.reconnect_attempts = 3  # Количество попыток переподключения
-        self.reconnect_delay = 5  # Задержка между попытками переподключения
-        self.node_check_delay = 10  # Задержка перед проверкой статуса узла после переподключения
+        self.sleep_interval = 30
+        self.reconnect_attempts = 3
+        self.reconnect_delay = 5
+        self.node_check_delay = 10
 
     def get_node_status_key(self, node_id):
         return f"{self.node_status_key_prefix}{node_id}"
