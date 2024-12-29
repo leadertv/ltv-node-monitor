@@ -5,7 +5,7 @@ networks:
 
 services:
   marzban-monitor:
-    image: sm1kyx/marzban-node-monitor:latest
+    image: leadertv/ltv-node-monitor:latest
     env_file: .env
     restart: unless-stopped
     networks:
