@@ -33,7 +33,7 @@ curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/sm1ky/marzban-node-monitor.git
+    git clone https://github.com/leadertv/ltv-node-monitor.git
     cd marzban-node-monitor
     ```
 
