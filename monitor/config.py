@@ -30,136 +30,136 @@ class Responses:
             "MONITOR_START": (
                 "✅ <b>Мониторинг начался.</b>\n\n"
                 "<i>Проверка узлов запущена...</i>\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "SUCCESS_MONITOR_START": (
                 "✅ <b>Мониторинг начался.</b>\n\n"
                 "<b>Общее количество узлов:</b> {node_count}\n\n"
                 "<i>Проверка узлов запущена...</i>\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "SUCCESS_NODE_RECONNECTED": (
                 "🟢 <b>Узел восстановлен</b>\n\n"
-                "<b>Узел:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                "<b>Узел:</b> <code>{node_name}</code>\n\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Время восстановления:</b> {timestamp}\n"
                 "<b>Время простоя:</b> {downtime_minutes} минут\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "SUCCESS_NODE_RECONNECTED_AFTER_ATTEMPTS": (
                 "🟢 <b>Узел восстановлен после нескольких попыток</b>\n\n"
-                "<b>Узел:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                "<b>Узел:</b> <code>{node_name}</code>\n\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Время восстановления:</b> {timestamp}\n"
                 "<b>Время простоя:</b> {downtime_minutes} минут\n"
                 "<b>Попытки переподключения:</b> {attempts}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "ERROR_NODE_DISCONNECTED": (
                 "🔴 <b>[ALERT]</b>\n\n"
-                "<b>Узел:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                "<b>Узел:</b> <code>{node_name}</code>\n\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Ошибка:</b> <code>{error_message}</code>\n"
                 "<b>Попытка переподключения:</b> {timestamp}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "ERROR_NODE_RECONNECT_ATTEMPT": (
                 "⚠️ <b>[Попытка {attempt}]</b>\n\n"
-                "<b>Узел:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                "<b>Узел:</b> <code>{node_name}</code>\n\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Попытка переподключения:</b> {attempt}/{max_checks}\n"
                 "<b>Время:</b> {timestamp}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "ERROR_NODE_RECONNECT_FAILED": (
                 "🔴 <b>[CRITICAL]</b>\n\n"
-                "<b>Узел:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                "<b>Узел:</b> <code>{node_name}</code>\n\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "Не удалось переподключить узел после {attempts} попыток.\n"
                 "<b>Ошибка:</b> <code>{error_message}</code>\n"
                 "<b>Время:</b> {timestamp}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "ERROR_MONITOR_FAILURE": (
                 "❗ <b>[ERROR]</b>\n\n"
                 "<b>Произошла ошибка при мониторинге узлов.</b>\n\n"
-                "<code>----------------------------------------</code>\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Ошибка:</b> <code>{error_message}</code>\n"
                 "<b>Время:</b> {timestamp}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
         },
         "en": {
             "MONITOR_START": (
                 "✅ <b>Monitoring started.</b>\n\n"
                 "<i>Node checking started...</i>\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "SUCCESS_MONITOR_START": (
                 "✅ <b>Monitoring started.</b>\n\n"
                 "<b>Total nodes:</b> {node_count}\n\n"
                 "<i>Node checking started...</i>\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "SUCCESS_NODE_RECONNECTED": (
                 "🟢 <b>Node reconnected</b>\n\n"
                 "<b>Node:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Reconnected at:</b> {timestamp}\n"
                 "<b>Downtime:</b> {downtime_minutes} minutes\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "SUCCESS_NODE_RECONNECTED_AFTER_ATTEMPTS": (
                 "🟢 <b>Node reconnected after several attempts</b>\n\n"
                 "<b>Node:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Reconnected at:</b> {timestamp}\n"
                 "<b>Downtime:</b> {downtime_minutes} minutes\n"
                 "<b>Reconnect attempts:</b> {attempts}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "ERROR_NODE_DISCONNECTED": (
                 "🔴 <b>[ALERT]</b>\n\n"
                 "<b>Node:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Error:</b> <code>{error_message}</code>\n"
                 "<b>Reconnect attempt:</b> {timestamp}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "ERROR_NODE_RECONNECT_ATTEMPT": (
                 "⚠️ <b>[Attempt {attempt}]</b>\n\n"
                 "<b>Node:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Reconnect attempt:</b> {attempt}/{max_checks}\n"
                 "<b>Time:</b> {timestamp}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "ERROR_NODE_RECONNECT_FAILED": (
                 "🔴 <b>[CRITICAL]</b>\n\n"
                 "<b>Node:</b> <code>{node_name}</code>\n"
-                "<b>IP:</b> <code>{node_ip}</code>\n\n"
-                "<code>----------------------------------------</code>\n"
+                #"<b>IP:</b> <code>{node_ip}</code>\n\n"
+                "<code>---------------------------------</code>\n"
                 "Failed to reconnect the node after {attempts} attempts.\n"
                 "<b>Error:</b> <code>{error_message}</code>\n"
                 "<b>Time:</b> {timestamp}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
             "ERROR_MONITOR_FAILURE": (
                 "❗ <b>[ERROR]</b>\n\n"
                 "<b>An error occurred during node monitoring.</b>\n\n"
-                "<code>----------------------------------------</code>\n"
+                "<code>---------------------------------</code>\n"
                 "<b>Error:</b> <code>{error_message}</code>\n"
                 "<b>Time:</b> {timestamp}\n"
-                "<code>----------------------------------------</code>\n\n"
+                "<code>---------------------------------</code>\n\n"
             ),
         },
     }
