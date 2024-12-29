@@ -1,5 +1,6 @@
 
 # Welcome to Marzban Node Monitor
+## Обновлённая версия микросервиса без отображения IP адресов каждого сервера.
 
 **Choose your preferred language / Выберите предпочитаемый язык:**
 
